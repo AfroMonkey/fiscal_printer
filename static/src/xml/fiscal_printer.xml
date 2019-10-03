@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery="t[t-if='widget.pos.config.module_account']" t-operation="after">
+            <div class='button js_fiscal_print'>
+                <i class='fa fa-print' /> Fiscal Print
+            </div>
+        </t>
+    </t>
+</templates>
