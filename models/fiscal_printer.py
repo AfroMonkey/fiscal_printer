@@ -38,12 +38,10 @@ class FiscalPrinter(models.Model):
         # SUBTOTAL DISCOUNT TODO
         # SUBTOTAL SURCHARGE TODO
         # PAYMENT METHOD
-        payments_codes = {
-            'Cash (USD)': 1,
-            # TODO credit card
-        }
-        payment_code = payments_codes.get(payment_lines[0]['name'], 1)
-        cash = payment_lines[0].get('amount', 0)
+        # TODO multiple methods
+        fp_journal_ids = self.env['pos.config'].search([], limit=1).fp_journal_ids # TODO multiple POS Config
+        payment_code = fp_journal_ids.search([('journal_id', '=', payment_lines[0]['journal_id'])]).code
+        cash = payment_lines[0]['amount']
         content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=cash or '')
         # ADDITIONAL TEXT
         additional_text = ''  # TODO
@@ -57,3 +55,7 @@ class FiscalPrinter(models.Model):
         open_cash_drawer = False # TODO
         if open_cash_drawer:
             content += '1029;1\n'
+        settings = self.env['res.config.settings'].default_get('')
+        file_path = settings['pos_fp_file_path']
+        with open(file_path, 'w') as file_output:
+            file_output.write(content)

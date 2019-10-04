@@ -27,7 +27,10 @@
         'point_of_sale',
     ],
     'data': [
+        'security/ir.model.access.csv',
         'views/product_template.xml',
+        'views/res_config_settings.xml',
+        'views/pos_config.xml',
         'templates/fiscal_printer.xml',
     ],
     'qweb': [

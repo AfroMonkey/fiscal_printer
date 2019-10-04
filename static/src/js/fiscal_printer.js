@@ -17,6 +17,7 @@ odoo.define('POS.pos', function (require) {
         },
         fiscal_print: function () {
             var order = this.pos.get_order();
+            // TODO send POS id
             var rows = [];
             for (const line of order.get_orderlines()) {
                 rows.push({
@@ -30,7 +31,7 @@ odoo.define('POS.pos', function (require) {
             var payment_lines = []
             for (const line of order.paymentlines.models) {
                 payment_lines.push({
-                    name: line.name,
+                    journal_id: line.cashregister.journal.id,
                     amount: line.amount,
                 })
             }
