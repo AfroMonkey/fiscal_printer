@@ -11,6 +11,17 @@
         </field>
     </record>
 
+    <record id="pos_config_fiscal_printer_tax_view_tree" model="ir.ui.view">
+        <field name="name">pos.config.fiscal_printer.tax_code.view.tree</field>
+        <field name="model">pos.config.fiscal_printer.tax_code</field>
+        <field name="arch" type="xml">
+            <tree editable="top">
+                <field name="tax_id"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+
     <record id="pos_config_fp_view_form" model="ir.ui.view">
         <field name="name">pos.config.fp.view.form</field>
         <field name="model">pos.config</field>
@@ -18,19 +29,61 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@id='inventory_location']" position="after">
                 <h2>Fiscal Printer</h2>
-                <div class="row mt16 o_settings_container" id="fiscal_printer">
+                <!-- TODO style -->
+                <div class="row mt16 o_settings_container">
                     <div class="col-12 col-lg-6 o_setting_box">
-                        <div class="o_setting_right_pane">
-                            <label for="fp_journal_ids"/>
-                            <div class="text-muted">
-                                Journal Codes
-                            </div>
+                        <div>
+                            <label for="fp_file_path"/>
                             <div class="content-group mt16">
-                                <field name="fp_journal_ids" required="1"/>
+                                <field name="fp_file_path" colspan="4" nolabel="1"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_cutter_receipt_paper"/>
+                            <div class="content-group mt16">
+                                <field name="fp_cutter_receipt_paper" colspan="4" nolabel="1"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_open_cash_drawer"/>
+                            <div class="content-group mt16">
+                                <field name="fp_open_cash_drawer" colspan="4" nolabel="1"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_journal_ids"/>
+                            <div class="content-group mt16">
+                                <field name="fp_journal_ids"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_tax_ids"/>
+                            <div class="content-group mt16">
+                                <field name="fp_tax_ids"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_additional_text"/>
+                            <div class="content-group mt16">
+                                <field name="fp_additional_text"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_product_additional_text_ids"/>
+                            <div class="content-group mt16">
+                                <!-- TODO sort -->
+                                <field name="fp_product_additional_text_ids"/>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="fp_order_suffix"/>
+                            <div class="content-group mt16">
+                                <!-- TODO sort -->
+                                <field name="fp_order_suffix"/>
                             </div>
                         </div>
                     </div>
-                </div> 
+                </div>
             </xpath> 
         </field>
     </record>
