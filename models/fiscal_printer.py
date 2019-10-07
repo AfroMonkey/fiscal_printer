@@ -29,7 +29,10 @@ class FiscalPrinter(models.Model):
             # TODO IMP check , instead of .
             vat_id = product.taxes_id[0] # TODO IMP multiple taxes
             vat_code = pos_config.fp_tax_ids.search([('tax_id', '=', vat_id.id)]).code
-            content += '1021;1;;{vat};;;{name};{price};{qty}\n'.format(vat=vat_code, name=r['name'], price=r['price'], qty=r['qty'])
+            if r['qty'] == 1:
+                content += '1021;1;;{vat};;;{name};{price}\n'.format(vat=vat_code, name=r['name'], price=r['price'])
+            else:
+                content += '1021;1;;{vat};;;{name};{price};{qty}\n'.format(vat=vat_code, name=r['name'], price=r['price'], qty=r['qty'])
             # ADDITIONAL PRODUCT TEXT
             additional_text = ''
             for field in pos_config.fp_product_additional_text_ids:
