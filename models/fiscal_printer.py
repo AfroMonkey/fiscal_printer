@@ -70,7 +70,7 @@ class FiscalPrinter(models.Model):
         if open_cash_drawer:
             content += '1029;1\n'
         file_path = pos_config.fp_file_path
-        with open(file_path, 'w') as file_output:
+        with open(file_path, 'w', newline='\r\n') as file_output:
             file_output.write(content)
     
     @api.model
