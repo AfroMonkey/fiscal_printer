@@ -2,16 +2,14 @@
 <templates id="template" xml:space="preserve">
     <t t-extend="PaymentScreenWidget">
         <t t-jquery="t[t-if='widget.pos.config.module_account']" t-operation="after">
-        <!-- TODO highlight -->
-            <div class='button js_fiscal_print'> 
+            <div class='button js_fiscal_print next' style="line-height: 220px;"> 
                 <i class='fa fa-print' /> Fiscal Print
             </div>
         </t>
     </t>
     <t t-extend="ReceiptScreenWidget">
         <t t-jquery="div[class='button print']" t-operation="after">
-        <!-- TODO highlight -->
-            <div class='button js_fiscal_print2'> 
+            <div class='button js_fiscal_print2 next'> 
                 <i class='fa fa-print' /> Fiscal Print
             </div>
         </t>
