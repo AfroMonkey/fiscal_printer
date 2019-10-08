@@ -1,5 +1,7 @@
 from odoo import api, models
 
+def c(value):
+    return str(value).replace('.', ',')
 
 def to_chunks(s: str, w: int):
     return [s[y-w:y] for y in range(w, len(s)+w, w)]
@@ -24,15 +26,15 @@ class FiscalPrinter(models.Model):
             product = ProductProduct.browse(r['id'])
             if product == pos_config.discount_product_id:
                 discount = abs(r['price'])
-                subtotal_discount = '1025;2;1;Discount {discount};{discount}\n'.format(discount=discount)
+                subtotal_discount = '1025;2;1;Discount {discount};{discount}\n'.format(discount=c(discount))
                 continue
             # TODO IMP check , instead of .
             vat_id = product.taxes_id[0] # TODO IMP multiple taxes
             vat_code = pos_config.fp_tax_ids.search([('tax_id', '=', vat_id.id)]).code
             if r['qty'] == 1:
-                content += '1021;1;;{vat};;;{name};{price}\n'.format(vat=vat_code, name=r['name'], price=r['price'])
+                content += '1021;1;;{vat};;;{name};{price}\n'.format(vat=vat_code, name=r['name'], price=c(r['price']))
             else:
-                content += '1021;1;;{vat};;;{name};{price};{qty}\n'.format(vat=vat_code, name=r['name'], price=r['price'], qty=r['qty'])
+                content += '1021;1;;{vat};;;{name};{price};{qty}\n'.format(vat=vat_code, name=r['name'], price=c(r['price']), qty=c(r['qty']))
             # ADDITIONAL PRODUCT TEXT
             additional_text = ''
             for field in pos_config.fp_product_additional_text_ids:
@@ -42,7 +44,7 @@ class FiscalPrinter(models.Model):
             # PRODUCT DISCOUNT
             if r.get('discount'):
                 discount_amount = r['price'] * r['qty'] * r['discount'] / 100
-                content += '1025;2;1;Discount {discount}%;{discount_amount}\n'.format(discount=r['discount'], discount_amount=discount_amount)
+                content += '1025;2;1;Discount {discount}%;{discount_amount}\n'.format(discount=c(r['discount']), discount_amount=c(discount_amount))
             # PRODUCT SURCHARGE
             surcharge = 0 # TODO IMP
             if surcharge:
@@ -53,13 +55,13 @@ class FiscalPrinter(models.Model):
             content += '1028\n'
         # SUBTOTAL DISCOUNT
         if subtotal_discount:
-            content += subtotal_discount
+            content += c(subtotal_discount)
         # TODO IMP SUBTOTAL SURCHARGE
         # PAYMENT METHOD
         # TODO IMP multiple methods
         payment_code = pos_config.fp_journal_ids.search([('journal_id', '=', payment_lines[0]['journal_id'])]).code
-        cash = payment_lines[0]['amount']
-        content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=cash or '')
+        cash = payment_lines[0]['amount'] or ''
+        content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=c(cash))
         # ADDITIONAL TEXT
         additional_text = pos_config.fp_additional_text
         for chunk in to_chunks(additional_text, 24):
