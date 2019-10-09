@@ -1,17 +1,16 @@
 from odoo import fields, models, _
 
 
-class POSConfigFiscalPrinterJournalCode(models.Model):
-    _name = 'pos.config.fiscal_printer.journal_code'
-    _description = '''Relation between account.journal and the printer code.'''
+class POSConfigFiscalPrinterPaymentMethodCode(models.Model):
+    _name = 'pos.config.fiscal_printer.payment_method_code'
+    _description = '''Relation between pos.payment.method and the printer code.'''
 
     name = fields.Char(
-        related='journal_id.name',
+        related='method_id.name',
     )
-    journal_id = fields.Many2one(
-        comodel_name='account.journal',
+    method_id = fields.Many2one(
+        comodel_name='pos.payment.method',
         required=True,
-        string=_('Journal'),
     )
     code = fields.Integer(
         required=True,
@@ -42,9 +41,9 @@ class POSConfigFiscalTaxCode(models.Model):
 class POSConfig(models.Model):
     _inherit = 'pos.config'
 
-    fp_journal_ids = fields.Many2many(
-        comodel_name='pos.config.fiscal_printer.journal_code',
-        string=_('Journals Codes'),
+    fp_payment_method_code_ids = fields.Many2many(
+        comodel_name='pos.config.fiscal_printer.payment_method_code',
+        string=_('Payment method codes'),
     )
     fp_product_additional_text_ids = fields.Many2many(
         comodel_name='ir.model.fields',

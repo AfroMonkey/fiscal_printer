@@ -34,7 +34,7 @@ class FiscalPrinter(models.TransientModel):
         subtotal_discount = ''
         for row in rows:
             product = ProductProduct.browse(row['id'])
-            if product == pos_config.discount_product_id:
+            if pos_config.discount_product_id and pos_config.discount_product_id == product:
                 discount = abs(row['price'])
                 subtotal_discount = '1025;2;1;Discount {discount};{discount}\n'.format(discount=commafile(discount))
                 continue
@@ -69,11 +69,11 @@ class FiscalPrinter(models.TransientModel):
         # TODO IMP SUBTOTAL SURCHARGE
         # PAYMENT METHOD
         # TODO IMP multiple methods
-        payment_code = pos_config.fp_journal_ids.search([('journal_id', '=', payment_lines[0]['journal_id'])]).code
+        payment_code = pos_config.fp_payment_method_code_ids.search([('method_id', '=', payment_lines[0]['method_id'])]).code  # TODO multiple payments methods
         cash = payment_lines[0]['amount'] or ''
         content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=commafile(cash))
         # ADDITIONAL TEXT
-        additional_text = pos_config.fp_additional_text
+        additional_text = pos_config.fp_additional_text or ''
         for chunk in to_chunks(additional_text, CHUNK_SIZE):
             content += '112;{};0;1;3\n'.format(chunk)
         # CUTTER RECEIPT PAPER

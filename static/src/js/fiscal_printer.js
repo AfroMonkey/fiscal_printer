@@ -12,9 +12,9 @@ odoo.define('POS.pos', function (require) {
             var self = this;
             this._super();
             this.$('.js_fiscal_print').click(function () {
-                // console.log(document.querySelectorAll('.next.highlight'));
                 if (self.order_is_valid('confirm')) {
-                    var order = self.fiscal_print();
+                    var order = self.pos.get_order()
+                    self.fiscal_print(order);
                     self.get_prefix().then(function (prefix) {
                         order.name = prefix + order.get_name();
                         self.validate_order();
@@ -23,8 +23,7 @@ odoo.define('POS.pos', function (require) {
                 }
             });
         },
-        fiscal_print: function () {
-            var order = this.pos.get_order();
+        fiscal_print: function (order) {
             var rows = [];
             for (const line of order.get_orderlines()) {
                 rows.push({
@@ -37,7 +36,7 @@ odoo.define('POS.pos', function (require) {
             var payment_lines = []
             for (const line of order.paymentlines.models) {
                 payment_lines.push({
-                    journal_id: line.cashregister.journal.id,
+                    method_id: line.payment_method.id,
                     amount: line.amount,
                 })
             }
@@ -66,17 +65,16 @@ odoo.define('POS.pos', function (require) {
     screens.ReceiptScreenWidget.include({
         renderElement: function () {
             var self = this;
+            var order = self.pos.get_order();
             this._super();
             this.$('.js_fiscal_print2').click(function () {
-                // console.log(document.querySelectorAll('.next.highlight'));
-                var order = self.fiscal_print();
+                self.fiscal_print(order);
                 self.set_prefix(order.name).then(function (prefix) {
                     order.finalize();
                 });
             });
         },
-        fiscal_print: function () {
-            var order = this.pos.get_order();
+        fiscal_print: function (order) {
             var rows = [];
             for (const line of order.get_orderlines()) {
                 rows.push({
@@ -89,11 +87,11 @@ odoo.define('POS.pos', function (require) {
             var payment_lines = []
             for (const line of order.paymentlines.models) {
                 payment_lines.push({
-                    journal_id: line.cashregister.journal.id,
+                    method_id: line.payment_method.id,
                     amount: line.amount,
                 })
             }
-            rpc.query({
+            return rpc.query({
                 model: 'fiscal.printer',
                 method: 'print_file',
                 args: [rows, payment_lines],
@@ -101,7 +99,6 @@ odoo.define('POS.pos', function (require) {
                     context: session.user_context
                 },
             });
-            return order;
         },
         set_prefix: function (pos_reference) {
             return rpc.query({
