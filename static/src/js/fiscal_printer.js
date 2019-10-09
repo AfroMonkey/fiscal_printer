@@ -51,7 +51,7 @@ odoo.define('POS.pos', function (require) {
             });
             return order;
         },
-        get_prefix: function() {
+        get_prefix: function () {
             return rpc.query({
                 model: 'fiscal.printer',
                 method: 'get_prefix',

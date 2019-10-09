@@ -1,40 +1,47 @@
 from odoo import api, models
 
-def c(value):
+
+def commafile(value):
+    '''Return numbers with comma instead of decimal point.'''
     return str(value).replace('.', ',')
 
-def to_chunks(s: str, w: int):
-    return [s[y-w:y] for y in range(w, len(s)+w, w)]
 
-class FiscalPrinter(models.Model):
+def to_chunks(string: str, width: int):
+    '''Split a string in chunks of size width.'''
+    return [string[y-width:y] for y in range(width, len(string)+width, width)]
+
+
+class FiscalPrinter(models.TransientModel):
     _name = 'fiscal.printer'
+    _description = '''Assistant model to make the files for fiscal printer.'''
 
     @api.model
     def print_file(self, rows, payment_lines):
+        '''Generate text file with the fiscal printer commands based on POS'''
         ProductProduct = self.env['product.product']
-        pos_config = self.env['pos.config'].search([], limit=1) # TODO IMP multiple stores
-        for r in rows:
-            r['name'] = ProductProduct.browse(r['id']).product_name_pos
-        
+        pos_config = self.env['pos.config'].search([], limit=1)  # TODO IMP multiple stores
+        for row in rows:
+            row['name'] = ProductProduct.browse(row['id']).product_name_pos
+
         # OPEN FISCAL RECEIPT
         content = '1020;1\n'
         # ROW PRODUCT SALE
         discount_amount = 0
         surcharge = 0
         subtotal_discount = ''
-        for r in rows:
-            product = ProductProduct.browse(r['id'])
+        for row in rows:
+            product = ProductProduct.browse(row['id'])
             if product == pos_config.discount_product_id:
-                discount = abs(r['price'])
-                subtotal_discount = '1025;2;1;Discount {discount};{discount}\n'.format(discount=c(discount))
+                discount = abs(row['price'])
+                subtotal_discount = '1025;2;1;Discount {discount};{discount}\n'.format(discount=commafile(discount))
                 continue
             # TODO IMP check , instead of .
-            vat_id = product.taxes_id[0] # TODO IMP multiple taxes
+            vat_id = product.taxes_id[0]  # TODO IMP multiple taxes
             vat_code = pos_config.fp_tax_ids.search([('tax_id', '=', vat_id.id)]).code
-            if r['qty'] == 1:
-                content += '1021;1;;{vat};;;{name};{price}\n'.format(vat=vat_code, name=r['name'], price=c(r['price']))
+            if row['qty'] == 1:
+                content += '1021;1;;{vat};;;{name};{price}\n'.format(vat=vat_code, name=row['name'], price=commafile(row['price']))
             else:
-                content += '1021;1;;{vat};;;{name};{price};{qty}\n'.format(vat=vat_code, name=r['name'], price=c(r['price']), qty=c(r['qty']))
+                content += '1021;1;;{vat};;;{name};{price};{qty}\n'.format(vat=vat_code, name=row['name'], price=commafile(row['price']), qty=commafile(row['qty']))
             # ADDITIONAL PRODUCT TEXT
             additional_text = ''
             for field in pos_config.fp_product_additional_text_ids:
@@ -42,26 +49,26 @@ class FiscalPrinter(models.Model):
             for chunk in to_chunks(additional_text, 24):
                 content += '112;{};0;1;3\n'.format(chunk)
             # PRODUCT DISCOUNT
-            if r.get('discount'):
-                discount_amount = r['price'] * r['qty'] * r['discount'] / 100
-                content += '1025;2;1;Discount {discount}%;{discount_amount}\n'.format(discount=c(r['discount']), discount_amount=c(discount_amount))
+            if row.get('discount'):
+                discount_amount = row['price'] * row['qty'] * row['discount'] / 100
+                content += '1025;2;1;Discount {discount}%;{discount_amount}\n'.format(discount=commafile(row['discount']), discount_amount=commafile(discount_amount))
             # PRODUCT SURCHARGE
-            surcharge = 0 # TODO IMP
+            surcharge = 0  # TODO IMP
             if surcharge:
-                surcharge_text = '' # TODO IMP
+                surcharge_text = ''  # TODO IMP
                 content += '1025;4;1;{surcharge_text};{surcharge}\n'.format(surcharge_text=surcharge_text, surcharge=surcharge)
         # SUBTOTAL
         if subtotal_discount:
             content += '1028\n'
         # SUBTOTAL DISCOUNT
         if subtotal_discount:
-            content += c(subtotal_discount)
+            content += commafile(subtotal_discount)
         # TODO IMP SUBTOTAL SURCHARGE
         # PAYMENT METHOD
         # TODO IMP multiple methods
         payment_code = pos_config.fp_journal_ids.search([('journal_id', '=', payment_lines[0]['journal_id'])]).code
         cash = payment_lines[0]['amount'] or ''
-        content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=c(cash))
+        content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=commafile(cash))
         # ADDITIONAL TEXT
         additional_text = pos_config.fp_additional_text
         for chunk in to_chunks(additional_text, 24):
@@ -77,13 +84,16 @@ class FiscalPrinter(models.Model):
         file_path = pos_config.fp_file_path
         with open(file_path, 'w', newline='\r\n') as file_output:
             file_output.write(content)
-    
+        return content
+
     @api.model
     def set_prefix(self, pos_reference):
+        '''Add prefix into pos.order'''
         order = self.env['pos.order'].search([('pos_reference', '=', pos_reference)], limit=1)
-        pos_config = self.env['pos.config'].search([], limit=1) # TODO IMP multiple stores
+        pos_config = self.env['pos.config'].search([], limit=1)  # TODO IMP multiple stores
         order.pos_reference = pos_config.fp_order_suffix + order.pos_reference
-    
+
     @api.model
     def get_prefix(self):
-        return self.env['pos.config'].search([], limit=1).fp_order_suffix # TODO IMP multiple stores
+        '''Return the prefix for pos.order'''
+        return self.env['pos.config'].search([], limit=1).fp_order_suffix  # TODO IMP multiple stores
