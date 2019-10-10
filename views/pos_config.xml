@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="pos_config_fiscal_printer_journal_view_tree" model="ir.ui.view">
-        <field name="name">pos.config.fiscal_printer.journal_code.view.tree</field>
-        <field name="model">pos.config.fiscal_printer.journal_code</field>
+    <record id="pos_config_fiscal_printer_method_view_tree" model="ir.ui.view">
+        <field name="name">pos.config.fiscal_printer.payment_method_code.view.tree</field>
+        <field name="model">pos.config.fiscal_printer.payment_method_code</field>
         <field name="arch" type="xml">
-            <tree editable="top">
-                <field name="journal_id"/>
+            <tree editable="bottom">
+                <field name="method_id"/>
                 <field name="code"/>
             </tree>
         </field>
@@ -15,7 +15,7 @@
         <field name="name">pos.config.fiscal_printer.tax_code.view.tree</field>
         <field name="model">pos.config.fiscal_printer.tax_code</field>
         <field name="arch" type="xml">
-            <tree editable="top">
+            <tree editable="bottom">
                 <field name="tax_id"/>
                 <field name="code"/>
             </tree>
@@ -51,9 +51,9 @@
                             </div>
                         </div>
                         <div>
-                            <label for="fp_journal_ids"/>
+                            <label for="fp_payment_method_code_ids"/>
                             <div class="content-group mt16">
-                                <field name="fp_journal_ids"/>
+                                <field name="fp_payment_method_code_ids"/>
                             </div>
                         </div>
                         <div>
