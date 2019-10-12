@@ -20,7 +20,7 @@
 
 {
     'name': 'Fiscal Printer',
-    'version': '1.0.0',
+    'version': '1.0.1',
     'author': 'Moisés Navarro',
     'website': 'https://github.com/AfroMonkey',
     'depends': [
