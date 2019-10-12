@@ -1,6 +1,5 @@
 from odoo import api, models
 
-
 CHUNK_SIZE = 24
 
 
@@ -94,7 +93,7 @@ class FiscalPrinter(models.TransientModel):
         '''Add prefix into pos.order'''
         order = self.env['pos.order'].search([('pos_reference', '=', pos_reference)], limit=1)
         pos_config = self.env['pos.config'].search([], limit=1)  # TODO IMP multiple stores
-        order.pos_reference = pos_config.fp_order_suffix or '' + order.pos_reference
+        order.pos_reference = pos_config.fp_order_suffix + pos_reference
 
     @api.model
     def get_prefix(self):
