@@ -68,9 +68,10 @@ class FiscalPrinter(models.TransientModel):
         # TODO IMP SUBTOTAL SURCHARGE
         # PAYMENT METHOD
         # TODO IMP multiple methods
-        payment_code = pos_config.fp_payment_method_code_ids.search([('method_id', '=', payment_lines[0]['method_id'])]).code  # TODO multiple payments methods
-        cash = payment_lines[0]['amount'] or ''
-        content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=commafile(cash))
+        for payment_line in payment_lines:
+            payment_code = pos_config.fp_payment_method_code_ids.search([('method_id', '=', payment_line['method_id'])]).code
+            cash = payment_line['amount'] or ''
+            content += '1030;{payment_code};1;;{cash}\n'.format(payment_code=payment_code, cash=commafile(cash))
         # ADDITIONAL TEXT
         additional_text = pos_config.fp_additional_text or ''
         for chunk in to_chunks(additional_text, CHUNK_SIZE):
@@ -86,6 +87,7 @@ class FiscalPrinter(models.TransientModel):
         file_path = pos_config.fp_file_path
         with open(file_path, 'w', newline='\r\n') as file_output:
             file_output.write(content)
+        print(content)
         return content
 
     @api.model

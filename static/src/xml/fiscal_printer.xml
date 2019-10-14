@@ -4,7 +4,7 @@
         <t t-jquery="t[t-if='widget.pos.config.module_account']" t-operation="after">
             <div class='button js_fiscal_print' style="line-height: 220px;">
                 <i class='fa fa-print' />
-                Fiscal Print
+                SCONTRINO
             </div>
         </t>
     </t>
@@ -12,7 +12,7 @@
         <t t-jquery="div[class='button print']" t-operation="after">
             <div class='button js_fiscal_print_published highlight'>
                 <i class='fa fa-print' />
- Fiscal Print
+                SCONTRINO
             </div>
         </t>
     </t>
